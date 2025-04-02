@@ -7,18 +7,29 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
         }
         .container {
-            width: 300px;
-            margin: auto;
-            padding-top: 50px;
+            width: 80%;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        input, textarea {
+        h2 {
+            text-align: center;
+        }
+        textarea {
             width: 100%;
-            margin-bottom: 10px;
-            padding: 8px;
+            height: 200px;
+            margin-bottom: 20px;
+            padding: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
+            resize: none;
         }
         button {
             width: 100%;
@@ -32,27 +43,95 @@
         button:hover {
             background-color: #45a049;
         }
+        .entry-container {
+            margin-top: 30px;
+        }
+        .entry {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .entry-date {
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>Sign Up</h2>
-        <form action="/signup" method="POST">
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
-            <button type="submit">Sign Up</button>
-        </form>
+        <h2>Journal Entry</h2>
+        <textarea id="journal-entry" placeholder="Write your journal entry here..."></textarea>
+        <button onclick="saveEntry()">Save Entry</button>
+
+        <div class="entry-container" id="entry-container"></div>
     </div>
 
-    <div class="container">
-        <h2>Journal Entry</h2>
-        <form action="/submit_entry" method="POST">
-            <label for="entry">Write your Journal:</label>
-            <textarea id="entry" name="entry" rows="4" required></textarea>
-            <button type="submit">Submit</button>
-        </form>
-    </div>
+    <script>
+        // Load journal entries from localStorage
+        window.onload = function() {
+            displayEntries();
+        };
+
+        // Save the current journal entry to localStorage
+        function saveEntry() {
+            const entryText = document.getElementById("journal-entry").value;
+            if (!entryText) {
+                alert("Please write something before saving.");
+                return;
+            }
+
+            const date = new Date();
+            const dateString = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+
+            // Create an entry object
+            const entry = {
+                date: dateString,
+                content: entryText
+            };
+
+            // Get existing entries from localStorage
+            let entries = JSON.parse(localStorage.getItem("journalEntries")) || [];
+
+            // Add new entry to the array
+            entries.push(entry);
+
+            // Save the updated entries array to localStorage
+            localStorage.setItem("journalEntries", JSON.stringify(entries));
+
+            // Clear the textarea
+            document.getElementById("journal-entry").value = "";
+
+            // Display the updated list of entries
+            displayEntries();
+        }
+
+        // Display all journal entries from localStorage
+        function displayEntries() {
+            const entries = JSON.parse(localStorage.getItem("journalEntries")) || [];
+            const entryContainer = document.getElementById("entry-container");
+
+            entryContainer.innerHTML = ""; // Clear existing entries
+
+            entries.forEach(entry => {
+                const entryElement = document.createElement("div");
+                entryElement.classList.add("entry");
+
+                const dateElement = document.createElement("div");
+                dateElement.classList.add("entry-date");
+                dateElement.textContent = entry.date;
+
+                const contentElement = document.createElement("div");
+                contentElement.textContent = entry.content;
+
+                entryElement.appendChild(dateElement);
+                entryElement.appendChild(contentElement);
+
+                entryContainer.appendChild(entryElement);
+            });
+        }
+    </script>
 
 </body>
 </html>
